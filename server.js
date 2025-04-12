@@ -28,6 +28,7 @@ try {
 }
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/items", express.static(path.join(__dirname, "data", "items")));
 app.use(express.json());
 
 // WebSocket broadcast
