@@ -21,6 +21,7 @@
         justify-content: center;
         text-align: center;
         color: #555;
+        cursor: pointer;
       }
       #stream {
         flex: 2;
@@ -55,12 +56,17 @@
         margin-left: 0.5em;
         padding: 0.5em 1em;
       }
+      img {
+        max-width: 100%;
+        max-height: 300px;
+      }
     </style>
   </head>
   <body>
     <div id="stream"></div>
 
-    <div id="drop-zone">Drag & drop files here or paste content</div>
+    <div id="drop-zone">Tap or drop files here</div>
+    <input type="file" id="file-input" style="display: none" />
 
     <form id="input-form">
       <input id="message-input" type="text" placeholder="Type a message..." />
@@ -72,6 +78,7 @@
       const stream = document.getElementById("stream");
       const inputForm = document.getElementById("input-form");
       const messageInput = document.getElementById("message-input");
+      const fileInput = document.getElementById("file-input");
 
       const socket = new WebSocket(`ws://${location.host}`);
 
@@ -94,6 +101,22 @@
           body: JSON.stringify({ content }),
         });
         messageInput.value = "";
+      });
+
+      dropZone.addEventListener("click", () => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append("file", file);
+        await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        fileInput.value = "";
       });
 
       dropZone.addEventListener("dragover", (e) => {
@@ -125,12 +148,25 @@
         let contentEl;
         if (item.type === "text") {
           contentEl = document.createElement("p");
-          contentEl.textContent = item.content;
+          const urlRegex = /(https?:\/\/[^\s]+)/g;
+          const parts = item.content.split(urlRegex);
+
+          parts.forEach((part) => {
+            if (urlRegex.test(part)) {
+              const link = document.createElement("a");
+              link.href = part;
+              link.textContent = part;
+              link.target = "_blank";
+              link.rel = "noopener noreferrer";
+              contentEl.appendChild(link);
+            } else {
+              contentEl.appendChild(document.createTextNode(part));
+            }
+          });
         } else if (item.type === "file") {
-          if (/\.(png|jpg|jpeg|gif|webp)$/i.test(item.filename)) {
+          if (/\.(png|jpe?g|gif|webp)$/i.test(item.filename)) {
             contentEl = document.createElement("img");
             contentEl.src = `/items/${item.path}`;
-            contentEl.style.maxWidth = "100%";
           } else {
             contentEl = document.createElement("a");
             contentEl.href = `/items/${item.path}`;
@@ -141,7 +177,6 @@
 
         if (contentEl) el.appendChild(contentEl);
 
-        // Add link icon
         if (item.url) {
           const linkIcon = document.createElement("span");
           linkIcon.className = "link-icon";
