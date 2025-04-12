@@ -33,6 +33,4 @@ It’s a friendly mashup of “catalog” and “kitten,” because why not? Thi
 
 Stay tuned and feel free to watch/star the repo for updates!
 
----
-
 [^1]: Except for the backend, which must be hosted on the network, either as a process or a container.
