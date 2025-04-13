@@ -14,7 +14,7 @@ const server = http.createServer(app);
 
 app.use(express.json());
 app.use("/api", apiRouter);
-app.use("/items", express.static(path.join(__dirname, "items")));
+app.use("/items", express.static(path.join(__dirname, "data", "items")));
 app.use(express.static(path.join(__dirname, "public")));
 
 const { broadcast } = setupWebSocket(server, catalog);
