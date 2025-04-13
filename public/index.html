@@ -13,11 +13,14 @@
         flex-direction: column;
         height: 100vh;
       }
-      h1 {
-        text-align: center;
+      #title {
         margin: 0;
         padding: 1em;
-        background: #f0f0f0;
+        background: #333;
+        color: white;
+        font-size: 1.5em;
+        text-align: center;
+        font-weight: bold;
       }
       #drop-zone {
         flex: 1;
@@ -69,7 +72,8 @@
     </style>
   </head>
   <body>
-    <h1>Kitalog</h1>
+    <h1 id="title">Kitalog</h1>
+
     <div id="stream"></div>
 
     <div id="drop-zone">Tap or drop files here</div>
@@ -184,6 +188,7 @@
 
         if (contentEl) el.appendChild(contentEl);
 
+        // 🔗 Add OG preview box if present
         if (item.preview) {
           const previewBox = document.createElement("div");
           previewBox.style.border = "1px solid #ccc";
@@ -223,6 +228,7 @@
           el.appendChild(previewBox);
         }
 
+        // 📎 Link icon
         if (item.url) {
           const linkIcon = document.createElement("span");
           linkIcon.className = "link-icon";
