@@ -1,13 +1,15 @@
-import os from "os";
 import express from "express";
 import { WebSocketServer } from "ws";
 import { createServer } from "http";
 import { v4 as uuidv4 } from "uuid";
 import multer from "multer";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
+import { fetchOpenGraph } from "./utils/fetch-open-graph.js";
 
+// Paths and constants
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const server = createServer(app);
@@ -17,8 +19,37 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, "data", "items");
 const INDEX_FILE = path.join(__dirname, "data", "kitalog.json");
 
-let catalog = [];
+// Livereload (only in development)
+if (process.env.NODE_ENV !== "production") {
+  const livereload = await import("livereload");
+  const connectLivereload = (await import("connect-livereload")).default;
 
+  const liveReloadServer = livereload.createServer();
+  liveReloadServer.watch(path.join(__dirname, "public"));
+  app.use(connectLivereload());
+
+  liveReloadServer.server.once("connection", () => {
+    setTimeout(() => {
+      liveReloadServer.refresh("/");
+    }, 100);
+  });
+}
+
+// Helpers
+function getLocalIP() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const net of interfaces[name]) {
+      if (net.family === "IPv4" && !net.internal) {
+        return net.address;
+      }
+    }
+  }
+  return "localhost";
+}
+
+// Load catalog
+let catalog = [];
 try {
   const data = fs.readFileSync(INDEX_FILE);
   catalog = JSON.parse(data);
@@ -27,8 +58,9 @@ try {
   fs.writeFileSync(INDEX_FILE, JSON.stringify(catalog, null, 2));
 }
 
+// Middleware
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/items", express.static(path.join(__dirname, "data", "items")));
+app.use("/items", express.static(DATA_DIR));
 app.use(express.json());
 
 // WebSocket broadcast
@@ -36,7 +68,6 @@ wss.on("connection", (ws) => {
   ws.send(JSON.stringify({ type: "init", data: catalog }));
 });
 
-// Broadcast to all clients
 function broadcast(item) {
   const message = JSON.stringify({ type: "new", data: item });
   wss.clients.forEach((client) => {
@@ -46,13 +77,12 @@ function broadcast(item) {
   });
 }
 
-// File upload handling
+// File uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, DATA_DIR),
   filename: (req, file, cb) =>
     cb(null, uuidv4() + path.extname(file.originalname)),
 });
-
 const upload = multer({ storage });
 
 app.post("/api/upload", upload.single("file"), (req, res) => {
@@ -70,31 +100,25 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
   res.json(item);
 });
 
-app.post("/api/message", (req, res) => {
+app.post("/api/message", async (req, res) => {
+  const content = req.body.content;
+  const urlMatch = content.match(/https?:\/\/[^\s]+/);
+  const preview = urlMatch ? await fetchOpenGraph(urlMatch[0]) : null;
+
   const item = {
     id: uuidv4(),
     type: "text",
     timestamp: new Date().toISOString(),
-    content: req.body.content,
+    content,
+    preview,
   };
+
   catalog.push(item);
   fs.writeFileSync(INDEX_FILE, JSON.stringify(catalog, null, 2));
   broadcast(item);
   res.json(item);
 });
 
-function getLocalIp() {
-  const interfaces = os.networkInterfaces();
-  for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      if (iface.family === "IPv4" && !iface.internal) {
-        return iface.address;
-      }
-    }
-  }
-  return "localhost";
-}
-
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Kitalog server running on http://${getLocalIp()}:${PORT}`);
+  console.log(`Kitalog server running at http://${getLocalIP()}:${PORT}`);
 });

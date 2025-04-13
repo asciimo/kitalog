@@ -18,7 +18,8 @@
 
 ## 🔧 Status
 
-Kitalog is currently in active development. The [MVP requirements](mvp-requirements.md) define the current feature scope and priorities.
+Kitalog is currently in active development. The [MVP requirements](docs/mvp-requirements.md) define the current feature scope and priorities.
+[Developer instructions](docs/development.md) include how to set up and run Kitalog.
 
 ## 🐾 Why “Kitalog”?
 

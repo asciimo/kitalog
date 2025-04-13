@@ -177,6 +177,45 @@
 
         if (contentEl) el.appendChild(contentEl);
 
+        if (item.preview) {
+          const previewBox = document.createElement("div");
+          previewBox.style.border = "1px solid #ccc";
+          previewBox.style.marginTop = "0.5em";
+          previewBox.style.padding = "0.5em";
+          previewBox.style.background = "#fafafa";
+
+          if (item.preview.image) {
+            const img = document.createElement("img");
+            img.src = item.preview.image;
+            img.alt = "Preview image";
+            img.style.maxWidth = "100%";
+            img.style.maxHeight = "200px";
+            img.style.display = "block";
+            img.style.marginBottom = "0.5em";
+            previewBox.appendChild(img);
+          }
+
+          if (item.preview.title) {
+            const link = document.createElement("a");
+            link.href = item.preview.url;
+            link.textContent = item.preview.title;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.style.display = "block";
+            link.style.fontWeight = "bold";
+            previewBox.appendChild(link);
+          }
+
+          if (item.preview.description) {
+            const desc = document.createElement("p");
+            desc.textContent = item.preview.description;
+            desc.style.margin = "0.25em 0 0 0";
+            previewBox.appendChild(desc);
+          }
+
+          el.appendChild(previewBox);
+        }
+
         if (item.url) {
           const linkIcon = document.createElement("span");
           linkIcon.className = "link-icon";
