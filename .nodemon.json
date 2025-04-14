@@ -1,6 +1,0 @@
-{
-  "watch": ["server.js", "routes", "utils", "public"],
-  "ext": "js,json,html",
-  "legacyWatch": true,
-  "exec": "node server.js"
-}

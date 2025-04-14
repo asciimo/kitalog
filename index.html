@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kitalog</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      #title {
+        margin: 0;
+        padding: 1em;
+        background: #333;
+        color: white;
+        font-size: 1.5em;
+        text-align: center;
+        font-weight: bold;
+      }
+      #drop-zone {
+        flex: 1;
+        border: 2px dashed #aaa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #555;
+        cursor: pointer;
+      }
+      #stream {
+        flex: 2;
+        overflow-y: auto;
+        padding: 1em;
+        background: #f9f9f9;
+      }
+      .item {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 0.5em;
+        margin-bottom: 0.5em;
+        position: relative;
+      }
+      .link-icon {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        cursor: pointer;
+      }
+      #input-form {
+        display: flex;
+        padding: 1em;
+        background: #eee;
+      }
+      #message-input {
+        flex: 1;
+        padding: 0.5em;
+        font-size: 1em;
+      }
+      button {
+        margin-left: 0.5em;
+        padding: 0.5em 1em;
+      }
+      img {
+        max-width: 100%;
+        max-height: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">Kitalog</h1>
+
+    <div id="stream"></div>
+
+    <div id="drop-zone">Tap or drop files here</div>
+    <input type="file" id="file-input" style="display: none" />
+
+    <form id="input-form">
+      <input id="message-input" type="text" placeholder="Type a message..." />
+      <button type="submit">Send</button>
+    </form>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
