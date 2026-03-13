@@ -1,3 +1,4 @@
+import { log } from "../utils/logger.js";
 import express from "express";
 import multer from "multer";
 import fs from "fs";
@@ -13,10 +14,12 @@ const upload = multer({ dest: ITEMS_DIR });
 let catalog = [];
 
 if (fs.existsSync(INDEX_FILE)) {
+  log.info(`Loading catalog from ${INDEX_FILE}`);
   catalog = JSON.parse(fs.readFileSync(INDEX_FILE));
 }
 
 router.post("/upload", upload.single("file"), (req, res) => {
+  log.info(`File upload received: ${req.file.originalname}`);
   const file = req.file;
   const item = {
     id: uuidv4(),
@@ -32,6 +35,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
 });
 
 router.post("/message", async (req, res) => {
+  log.info(`Message received: ${req.body.content}`);
   const content = req.body.content;
   const urlMatch = content.match(/https?:\/\/[^\s]+/);
   const preview = urlMatch ? await fetchOpenGraph(urlMatch[0]) : null;
