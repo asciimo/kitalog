@@ -1,4 +1,5 @@
 import { logger } from "./logger.js";
+import { renderItem } from "./components/index.js";
 
 const dropZone = document.getElementById("drop-zone");
 const stream = document.getElementById("stream");
@@ -70,7 +71,7 @@ dropZone.addEventListener("dragover", (e) => {
   dropZone.style.background = "#eee";
 });
 
-dropZone.addEventListener("dragleave", (e) => {
+dropZone.addEventListener("dragleave", () => {
   dropZone.style.background = "";
 });
 
@@ -90,28 +91,12 @@ dropZone.addEventListener("drop", async (e) => {
 
 function addItem(item) {
   logger.debug(`[addItem] type=${item.type} id=${item.id}`);
-  const el = document.createElement("div");
-  el.className = "item";
 
-  let contentEl;
-  if (item.type === "text") {
-    contentEl = document.createElement("p");
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = item.content.split(urlRegex);
+  if (item.type === "file") {
+    const el = document.createElement("div");
+    el.className = "item";
 
-    parts.forEach((part) => {
-      if (urlRegex.test(part)) {
-        const link = document.createElement("a");
-        link.href = part;
-        link.textContent = part;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        contentEl.appendChild(link);
-      } else {
-        contentEl.appendChild(document.createTextNode(part));
-      }
-    });
-  } else if (item.type === "file") {
+    let contentEl;
     if (/\.(png|jpe?g|gif|webp)$/i.test(item.filename)) {
       contentEl = document.createElement("img");
       contentEl.src = `/items/${item.path}`;
@@ -121,52 +106,8 @@ function addItem(item) {
       contentEl.download = item.filename;
       contentEl.textContent = item.filename;
     }
-  }
+    el.appendChild(contentEl);
 
-  if (contentEl) el.appendChild(contentEl);
-
-  // 🔗 Add OG preview box if present
-  if (item.preview) {
-    const previewBox = document.createElement("div");
-    previewBox.style.border = "1px solid #ccc";
-    previewBox.style.marginTop = "0.5em";
-    previewBox.style.padding = "0.5em";
-    previewBox.style.background = "#fafafa";
-
-    if (item.preview.image) {
-      const img = document.createElement("img");
-      img.src = item.preview.image;
-      img.alt = "Preview image";
-      img.style.maxWidth = "100%";
-      img.style.maxHeight = "200px";
-      img.style.display = "block";
-      img.style.marginBottom = "0.5em";
-      previewBox.appendChild(img);
-    }
-
-    if (item.preview.title) {
-      const link = document.createElement("a");
-      link.href = item.preview.url;
-      link.textContent = item.preview.title;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.style.display = "block";
-      link.style.fontWeight = "bold";
-      previewBox.appendChild(link);
-    }
-
-    if (item.preview.description) {
-      const desc = document.createElement("p");
-      desc.textContent = item.preview.description;
-      desc.style.margin = "0.25em 0 0 0";
-      previewBox.appendChild(desc);
-    }
-
-    el.appendChild(previewBox);
-  }
-
-  // 📎 Link icon
-  if (item.url) {
     const linkIcon = document.createElement("span");
     linkIcon.className = "link-icon";
     linkIcon.textContent = "📎";
@@ -178,7 +119,10 @@ function addItem(item) {
       setTimeout(() => (linkIcon.textContent = "📎"), 1000);
     };
     el.appendChild(linkIcon);
-  }
 
-  stream.prepend(el);
+    stream.prepend(el);
+  } else {
+    const el = renderItem(item);
+    stream.prepend(el);
+  }
 }

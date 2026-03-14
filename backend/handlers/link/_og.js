@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
-import { log } from "../utils/logger.js";
+import { log } from "../../utils/logger.js";
 
-export async function fetchOpenGraph(url) {
+export async function fetchOG(url) {
   log.debug({ url }, "[OG] Fetching OpenGraph");
 
   try {

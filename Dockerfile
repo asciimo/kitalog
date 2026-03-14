@@ -4,7 +4,7 @@ COPY package*.json ./
 RUN npm ci
 
 FROM base AS backend
-CMD ["node", "--watch", "server.js"]
+CMD ["node", "--watch", "backend/server.js"]
 
 FROM base AS frontend
 CMD ["npx", "vite", "--host"]

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getLocalIp } from "../utils/get-local-ip.js";
+import { getLocalIp } from "../backend/utils/get-local-ip.js";
 
 describe("getLocalIp", () => {
   it("should return a valid IPv4 address", () => {
