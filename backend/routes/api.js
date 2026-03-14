@@ -3,8 +3,8 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
-import { fetchOpenGraph } from "../utils/fetch-open-graph.js";
 import path from "path";
+import { enrich } from "../handlers/index.js";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const ITEMS_DIR = path.join(DATA_DIR, "items");
@@ -41,20 +41,21 @@ function createApiRouter(broadcast) {
     log.info(`Message received: ${req.body.content}`);
     const content = req.body.content;
     const urlMatch = content.match(/https?:\/\/[^\s]+/);
-    const preview = urlMatch ? await fetchOpenGraph(urlMatch[0]) : null;
+    const url = urlMatch ? urlMatch[0] : null;
 
     const item = {
       id: uuidv4(),
       type: "text",
       timestamp: new Date().toISOString(),
       content,
-      preview,
+      url,
     };
 
-    catalog.push(item);
+    const enriched = await enrich(item);
+    catalog.push(enriched);
     fs.writeFileSync(INDEX_FILE, JSON.stringify(catalog, null, 2));
-    broadcast(item);
-    res.json(item);
+    broadcast(enriched);
+    res.json(enriched);
   });
 
   return router;

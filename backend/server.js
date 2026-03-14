@@ -27,8 +27,8 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use("/api", createApiRouter(broadcast));
-app.use("/items", express.static(path.join(__dirname, "data", "items")));
-app.use(express.static(path.join(__dirname, "public")));
+app.use("/items", express.static(path.join(__dirname, "..", "data", "items")));
+app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || "0.0.0.0";

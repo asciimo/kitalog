@@ -2,10 +2,10 @@
   "name": "kitalog",
   "version": "0.1.0",
   "description": "LAN-based file, link, and message sharing app",
-  "main": "server.js",
+  "main": "backend/server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js #backend",
+    "start": "node backend/server.js",
     "dev": "vite",
     "test": "vitest"
   },

@@ -6,9 +6,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./server.js:/app/server.js
-      - ./routes:/app/routes
-      - ./utils:/app/utils
+      - ./backend:/app/backend
       - ./data:/app/data
     env_file: .env
     environment:
@@ -21,8 +19,7 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - ./src:/app/src
-      - ./index.html:/app/index.html
+      - ./frontend:/app/frontend
       - ./vite.config.js:/app/vite.config.js
     env_file: .env
     environment:
@@ -35,7 +32,7 @@ services:
       context: .
       target: backend
     volumes:
-      - ./utils:/app/utils
+      - ./backend:/app/backend
       - ./tests:/app/tests
     command: npm test
     profiles: ["test"]
