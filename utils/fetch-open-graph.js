@@ -1,8 +1,9 @@
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
+import { log } from "../utils/logger.js";
 
 export async function fetchOpenGraph(url) {
-  console.log(`[OG] Fetching OpenGraph for: ${url}`);
+  log.debug({ url }, "[OG] Fetching OpenGraph");
 
   try {
     const response = await fetch(url, {
@@ -14,7 +15,7 @@ export async function fetchOpenGraph(url) {
       },
       redirect: "follow",
     });
-    console.log(`[OG] HTTP ${response.status} ${response.statusText}`);
+    log.debug({ status: response.status }, "[OG] HTTP response");
 
     if (!response.ok) throw new Error("Non-200 response");
 
@@ -23,7 +24,7 @@ export async function fetchOpenGraph(url) {
 
     const getMeta = (prop) => {
       const val = $(`meta[property='og:${prop}']`).attr("content");
-      if (val) console.log(`[OG] Found og:${prop}:`, val);
+      if (val) log.debug({ prop, val }, "[OG] Found OG tag");
       return val || "";
     };
 
@@ -35,13 +36,13 @@ export async function fetchOpenGraph(url) {
     };
 
     if (!preview.title && !preview.description && !preview.image) {
-      console.log(`[OG] No OpenGraph tags found.`);
+      log.debug({ url }, "[OG] No OpenGraph tags found");
       return null;
     }
 
     return preview;
   } catch (err) {
-    console.warn(`[OG] Error fetching OpenGraph for ${url}:\n`, err);
+    log.warn({ url, err }, "[OG] Error fetching OpenGraph");
     return null;
   }
 }

@@ -1,3 +1,5 @@
+import { logger } from "./logger.js";
+
 const dropZone = document.getElementById("drop-zone");
 const stream = document.getElementById("stream");
 const inputForm = document.getElementById("input-form");
@@ -10,11 +12,25 @@ const socket = new WebSocket(
   `${protocol}://${location.hostname}:${backendPort}`
 );
 
+socket.onopen = () => {
+  logger.debug("[WS] Connected");
+};
+
+socket.onclose = () => {
+  logger.warn("[WS] Disconnected");
+};
+
+socket.onerror = (err) => {
+  logger.error("[WS] Socket error", err);
+};
+
 socket.onmessage = (event) => {
   const msg = JSON.parse(event.data);
   if (msg.type === "init") {
+    logger.debug(`[WS] Received message type=init count=${msg.data.length}`);
     msg.data.forEach(addItem);
   } else if (msg.type === "new") {
+    logger.debug(`[WS] Received message type=new id=${msg.data.id}`);
     addItem(msg.data);
   }
 };
@@ -28,6 +44,7 @@ inputForm.addEventListener("submit", async (e) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ content }),
   });
+  logger.debug("[form] Message submitted");
   messageInput.value = "";
 });
 
@@ -44,6 +61,7 @@ fileInput.addEventListener("change", async (e) => {
     method: "POST",
     body: formData,
   });
+  logger.debug(`[file] Uploaded: ${file.name}`);
   fileInput.value = "";
 });
 
@@ -67,9 +85,11 @@ dropZone.addEventListener("drop", async (e) => {
     method: "POST",
     body: formData,
   });
+  logger.debug(`[file] Uploaded via drop: ${file.name}`);
 });
 
 function addItem(item) {
+  logger.debug(`[addItem] type=${item.type} id=${item.id}`);
   const el = document.createElement("div");
   el.className = "item";
 

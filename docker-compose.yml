@@ -29,3 +29,13 @@ services:
       VITE_BACKEND_URL: http://backend:3000
     depends_on:
       - backend
+
+  test:
+    build:
+      context: .
+      target: backend
+    volumes:
+      - ./utils:/app/utils
+      - ./tests:/app/tests
+    command: npm test
+    profiles: ["test"]
