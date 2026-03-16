@@ -66,6 +66,26 @@ fileInput.addEventListener("change", async (e) => {
   fileInput.value = "";
 });
 
+messageInput.addEventListener("paste", async (e) => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith("image/")) {
+      e.preventDefault();
+      const file = item.getAsFile();
+      if (!file) continue;
+      const formData = new FormData();
+      formData.append("file", file);
+      await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      logger.debug(`[paste] Uploaded pasted image: ${file.type}`);
+      break;
+    }
+  }
+});
+
 dropZone.addEventListener("dragover", (e) => {
   e.preventDefault();
   dropZone.style.background = "#eee";
