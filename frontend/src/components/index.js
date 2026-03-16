@@ -1,11 +1,13 @@
 import renderText from "./text.js";
 import renderLink from "./link.js";
+import renderImage from "./image.js";
 import renderTwitter from "./twitter.js";
 import renderReddit from "./reddit.js";
 
 const components = {
   text: renderText,
   link: renderLink,
+  image: renderImage,
   twitter: renderTwitter,
   reddit: renderReddit,
   facebook: renderLink,
