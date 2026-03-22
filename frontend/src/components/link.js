@@ -53,6 +53,24 @@ export function buildPreviewCard(preview) {
   return box;
 }
 
+function buildUrlCard(url) {
+  const box = document.createElement("div");
+  box.style.border = "1px solid #ccc";
+  box.style.marginTop = "0.5em";
+  box.style.padding = "0.5em";
+  box.style.background = "#fafafa";
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.textContent = url;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.style.wordBreak = "break-all";
+  box.appendChild(a);
+
+  return box;
+}
+
 export default function renderLink(item) {
   const el = document.createElement("div");
   el.className = "item";
@@ -63,6 +81,8 @@ export default function renderLink(item) {
 
   if (item.preview) {
     el.appendChild(buildPreviewCard(item.preview));
+  } else if (item.url) {
+    el.appendChild(buildUrlCard(item.url));
   }
 
   return el;
